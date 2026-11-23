@@ -98,6 +98,34 @@ def api_latest():
     ])
 
 
+# 기간: (전체 초, 구간 초) - 어느 기간이든 점이 100개 안쪽이 되게
+RANGES = {"1h": (3600, 60), "24h": (86400, 900), "7d": (604800, 7200)}
+
+
+@app.route("/api/history")
+@login_required
+def api_history():
+    seconds, step = RANGES.get(request.args.get("range"), RANGES["24h"])
+    try:
+        now, rows = db.humidity_history(seconds, step)
+    except Exception:
+        return jsonify(error="DB에 연결할 수 없어요."), 503
+
+    # 빈 구간도 x축에 남겨야 시간 간격이 왜곡되지 않는다 (값은 null)
+    last = now // step
+    buckets = list(range(last - seconds // step + 1, last + 1))
+    index = {b: i for i, b in enumerate(buckets)}
+    series = {}
+    for r in rows:
+        i = index.get(int(r["b"]))
+        if i is not None:
+            series.setdefault(r["node"], [None] * len(buckets))[i] = round(float(r["hum"]), 1)
+    return jsonify(
+        times=[b * step for b in buckets],
+        series=[{"node": n, "hum": series[n]} for n in sorted(series)],
+    )
+
+
 @app.route("/logout", methods=["POST"])
 def logout():
     session.clear()

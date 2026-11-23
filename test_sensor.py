@@ -60,6 +60,22 @@ assert data == [
     {"node": "shoe", "temp": 20.0, "hum": 70.0, "at": "2026-11-23 12:00:00"},
 ], data
 
+# 습도 기록: 1시간 = 60초 구간 60개, 빈 구간은 null, 범위 밖 구간은 버림
+now = 1_800_000_000
+last = now // 60
+appmod.db.humidity_history = lambda sec, step: (now, [
+    {"node": "closet1", "b": last, "hum": 62.04},
+    {"node": "closet1", "b": last - 2, "hum": 60},
+    {"node": "shoe", "b": last - 59, "hum": 71},
+    {"node": "shoe", "b": last - 60, "hum": 99},  # 1시간보다 오래됨
+])
+h = c.get("/api/history?range=1h").get_json()
+assert len(h["times"]) == 60 and h["times"][-1] == last * 60
+s1, s2 = h["series"]
+assert s1["node"] == "closet1" and s1["hum"][-1] == 62.0 and s1["hum"][-2] is None and s1["hum"][-3] == 60
+assert s2["node"] == "shoe" and s2["hum"][0] == 71 and 99 not in s2["hum"]
+assert len(c.get("/api/history?range=bogus").get_json()["times"]) == 96  # 기본 24시간 / 15분
+
 # DB 장애면 503
 def boom():
     raise RuntimeError("db down")

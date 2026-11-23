@@ -56,3 +56,21 @@ def latest_measurements():
             """
         )
         return cur.fetchall()
+
+
+def humidity_history(seconds, step):
+    """최근 seconds초 동안의 습도를 step초 구간별 평균으로.
+    반환: (지금 epoch, [{node, b(구간 번호 = epoch // step), hum}])"""
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute("SELECT UNIX_TIMESTAMP(NOW()) AS now")
+        now = int(cur.fetchone()["now"])
+        cur.execute(
+            """
+            SELECT node, FLOOR(UNIX_TIMESTAMP(measured_at) / %s) AS b, AVG(humidity) AS hum
+            FROM measurements
+            WHERE measured_at >= NOW() - INTERVAL %s SECOND
+            GROUP BY node, b
+            """,
+            (step, seconds),
+        )
+        return now, cur.fetchall()

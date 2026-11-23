@@ -250,3 +250,35 @@ form > label:not(.remember) { font-size: 14px; font-weight: 700; margin: 0 0 7px
   .shell { grid-template-columns: 1fr; min-height: 0; padding: 24px 20px; }
   .art { display: none; }
 }
+
+/* ───── 대시보드: 습도 그래프 카드 ───── */
+body:has(.chart-card) { place-items: start center; gap: 20px; align-content: center; }
+.chart-card {
+  width: 100%;
+  max-width: 980px;
+  padding: clamp(16px, 2.4vw, 28px);
+  background: var(--card);
+  border-radius: clamp(22px, 3vw, 32px);
+  box-shadow: 0 30px 60px rgba(90, 50, 170, 0.12);
+}
+.chart-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.chart-head h2 { margin: 0; font-family: var(--round); font-weight: 400; font-size: 24px; }
+.chart-head .sub { margin: 4px 0 0; text-align: left; }
+.range { display: inline-flex; padding: 4px; gap: 4px; background: #f4effe; border: 2px solid var(--line); border-radius: 12px; }
+.range button {
+  padding: 7px 12px;
+  font: inherit; font-size: 13px; font-weight: 700;
+  color: var(--muted);
+  background: none; border: 0; border-radius: 8px; cursor: pointer;
+}
+.range button[aria-pressed="true"] { color: #fff; background: var(--violet); box-shadow: 0 2px 0 var(--outline); }
+.range button:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.chart-wrap { position: relative; height: 300px; }
+.chart-empty { position: absolute; inset: 40% 10% auto; }
+.table-view { margin-top: 12px; font-size: 13px; color: var(--muted); }
+.table-view summary { cursor: pointer; font-weight: 700; color: var(--violet-deep); }
+.table-scroll { max-height: 240px; overflow: auto; margin-top: 8px; }
+.table-view table { width: 100%; border-collapse: collapse; color: var(--ink); }
+.table-view th, .table-view td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); }
+.table-view th:first-child, .table-view td:first-child { text-align: left; }
+.table-view th { position: sticky; top: 0; background: #fff; color: var(--muted); font-weight: 600; }
