@@ -3,6 +3,7 @@ import re
 from datetime import timedelta
 from functools import wraps
 
+import pymysql
 from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -32,6 +33,17 @@ def login_required(view):
 @app.route("/")
 def index():
     return redirect(url_for("dashboard" if "user_id" in session else "login"))
+
+
+@app.errorhandler(pymysql.MySQLError)
+@app.errorhandler(RuntimeError)  # PyMySQL이 cryptography 패키지가 없을 때 내는 에러
+def db_error(e):
+    # 원인은 서버 터미널에, 사용자에게는 안내 문구만
+    app.logger.exception("DB 오류")
+    if request.method == "POST":
+        flash("DB에 연결할 수 없어요. 잠시 후 다시 시도해 주세요.", "error")
+        return redirect(request.path)
+    return "DB에 연결할 수 없어요.", 503
 
 
 @app.route("/login", methods=["GET", "POST"])

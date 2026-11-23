@@ -53,4 +53,15 @@ assert "mold님" in c.get("/dashboard").get_data(as_text=True)
 post("/logout")
 assert c.get("/dashboard").status_code == 302
 
+# DB 장애: 500 대신 안내 문구와 함께 원래 화면으로
+import pymysql
+def down(*a):
+    raise pymysql.err.OperationalError(2003, "Can't connect")
+appmod.db.create_user = down
+appmod.db.find_user = down
+r = post("/signup", username="newbie", password="12345678", password2="12345678")
+assert r.status_code == 302 and r.headers["Location"].endswith("/signup")
+assert "DB에 연결할 수 없어요" in c.get("/signup").get_data(as_text=True)
+assert post("/login", username="mold", password="12345678").status_code == 302
+
 print("all auth tests passed")
