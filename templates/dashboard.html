@@ -3,17 +3,63 @@
 
 {% block art %}
 <div class="sensor">
-  <span class="label">옷장 습도</span>
-  <strong>--%</strong>
-  <div class="bars"><i style="--h:20%"></i><i style="--h:20%"></i><i style="--h:20%"></i><i style="--h:20%"></i></div>
+  <span class="label" id="art-label">옷장 습도</span>
+  <strong id="art-hum">--%</strong>
+  <div class="bars"><i style="--h:40%"></i><i style="--h:70%"></i><i style="--h:55%"></i><i style="--h:85%"></i></div>
 </div>
 {% endblock %}
 
 {% block form %}
 <h1>{{ username }}님, 반가워요!</h1>
-<p class="sub">로그인됐어요. 대시보드는 준비 중이에요.</p>
+<p class="sub">옷장 속 온도와 습도예요. 5초마다 새로 고쳐요.</p>
+
+<div id="nodes" class="nodes" aria-live="polite">
+  <p class="empty">불러오는 중…</p>
+</div>
 
 <form method="post" action="{{ url_for('logout') }}">
-  <button type="submit" class="submit">로그아웃</button>
+  <button type="submit" class="submit ghost">로그아웃</button>
 </form>
+{% endblock %}
+
+{% block script %}
+<script>
+  const box = document.getElementById('nodes');
+  const artHum = document.getElementById('art-hum'), artLabel = document.getElementById('art-label');
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function refresh() {
+    let data;
+    try {
+      const res = await fetch('{{ url_for("api_latest") }}', { headers: { Accept: 'application/json' } });
+      if (res.redirected) { location.href = res.url; return; }  // 로그인 풀림
+      data = await res.json();
+      if (!res.ok) throw new Error(data.error || '불러오지 못했어요.');
+    } catch (e) {
+      box.innerHTML = `<p class="empty">${esc(e.message || '서버에 연결할 수 없어요.')}</p>`;
+      return;
+    }
+    if (!data.length) {
+      box.innerHTML = '<p class="empty">아직 받은 센서값이 없어요. 노드를 켜 주세요.</p>';
+      return;
+    }
+    box.innerHTML = data.map(n => `
+      <article class="node">
+        <h2>${esc(n.node)}</h2>
+        <div class="vals">
+          <div><span>온도</span><strong>${n.temp.toFixed(1)}°C</strong></div>
+          <div><span>습도</span><strong>${n.hum.toFixed(0)}%</strong></div>
+        </div>
+        <time>${esc(n.at)} 기준</time>
+      </article>`).join('');
+    artLabel.textContent = `${data[0].node} 습도`;
+    artHum.textContent = `${data[0].hum.toFixed(0)}%`;
+  }
+
+  refresh();
+  setInterval(refresh, 5000);
+</script>
 {% endblock %}

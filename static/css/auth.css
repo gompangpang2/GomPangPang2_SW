@@ -218,6 +218,25 @@ form > label:not(.remember) { font-size: 14px; font-weight: 700; margin: 0 0 7px
 .flash.error { background: #ffe4ec; color: #9d1746; }
 .flash.ok { background: #e9ffef; color: #17633a; }
 
+/* 대시보드: 노드별 온습도 카드 */
+.nodes { display: grid; gap: 14px; margin-bottom: 8px; }
+.node {
+  padding: 14px 16px;
+  background: #faf7ff;
+  border: 2.5px solid var(--outline);
+  border-radius: 16px;
+  box-shadow: 0 4px 0 var(--outline);
+}
+.node h2 { margin: 0 0 8px; font-family: var(--round); font-weight: 400; font-size: 17px; }
+.node .vals { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.node .vals div { padding: 8px 10px; background: #fff; border: 2px solid var(--line); border-radius: 12px; }
+.node .vals span { display: block; font-size: 12px; color: var(--muted); }
+.node .vals strong { font-family: var(--round); font-weight: 400; font-size: 26px; color: var(--violet-deep); }
+.node time { display: block; margin-top: 8px; font-size: 11px; color: var(--muted); }
+.empty { margin: 0; padding: 16px; text-align: center; font-size: 13px; color: var(--muted); background: #faf7ff; border-radius: 14px; }
+.submit.ghost { background: #fff; color: var(--ink); }
+.submit.ghost:hover { background: var(--lilac); }
+
 .switch { margin: 22px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
 .switch a { color: var(--violet-deep); font-weight: 700; text-underline-offset: 3px; }
 

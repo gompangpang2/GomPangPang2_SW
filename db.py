@@ -34,3 +34,25 @@ def create_user(username, password_hash):
         return True
     except pymysql.err.IntegrityError:
         return False
+
+
+def save_measurement(node, temperature, humidity):
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO measurements (node, temperature, humidity) VALUES (%s, %s, %s)",
+            (node, temperature, humidity),
+        )
+
+
+def latest_measurements():
+    """노드별 가장 최근 측정값 하나씩."""
+    with connect() as conn, conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT m.node, m.temperature, m.humidity, m.measured_at
+            FROM measurements m
+            JOIN (SELECT node, MAX(id) AS id FROM measurements GROUP BY node) last ON last.id = m.id
+            ORDER BY m.node
+            """
+        )
+        return cur.fetchall()

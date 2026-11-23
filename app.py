@@ -3,7 +3,7 @@ import re
 from datetime import timedelta
 from functools import wraps
 
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import db
@@ -80,8 +80,22 @@ def signup():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    # shortcut: 대시보드(할 일 7) 전 임시 화면
     return render_template("dashboard.html", username=session["username"])
+
+
+@app.route("/api/latest")
+@login_required
+def api_latest():
+    # shortcut: 5초 폴링. 실시간 푸시가 필요해지면 Flask-SocketIO로 교체
+    try:
+        rows = db.latest_measurements()
+    except Exception:
+        return jsonify(error="DB에 연결할 수 없어요."), 503
+    return jsonify([
+        {"node": r["node"], "temp": r["temperature"], "hum": r["humidity"],
+         "at": r["measured_at"].strftime("%Y-%m-%d %H:%M:%S")}
+        for r in rows
+    ])
 
 
 @app.route("/logout", methods=["POST"])
@@ -91,4 +105,12 @@ def logout():
 
 
 if __name__ == "__main__":
+    import threading
+
+    import tcp_server
+
+    # 노드 TCP 수신기를 같은 프로세스에서 함께 띄운다
+    tcp = tcp_server.make_server()
+    threading.Thread(target=tcp.serve_forever, daemon=True).start()
+    print(f"[tcp] {tcp.server_address[1]}번 포트에서 노드 기다리는 중")
     app.run(host="0.0.0.0", port=5000)
