@@ -141,4 +141,4 @@ if __name__ == "__main__":
     tcp = tcp_server.make_server()
     threading.Thread(target=tcp.serve_forever, daemon=True).start()
     print(f"[tcp] {tcp.server_address[1]}번 포트에서 노드 기다리는 중")
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

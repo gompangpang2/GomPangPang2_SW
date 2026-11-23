@@ -45,6 +45,7 @@ python3 app.py
 | `DB_USER` | `gompang` | DB 계정 |
 | `DB_PASSWORD` | (없음) | DB 비밀번호 |
 | `DB_NAME` | `gompang` | DB 이름 |
+| `PORT` | `5000` | 웹 포트 |
 | `TCP_PORT` | `9000` | 노드가 접속할 TCP 포트 |
 | `SECRET_KEY` | 실행마다 랜덤 | 로그인 세션 암호화 키. 고정하지 않으면 서버를 재시작할 때 로그인이 풀립니다. |
 
