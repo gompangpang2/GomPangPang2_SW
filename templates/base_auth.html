@@ -23,6 +23,11 @@
 
     <main class="panel">
       {% block form %}{% endblock %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for kind, msg in messages %}
+          <p class="flash {{ kind }}" role="alert">{{ msg }}</p>
+        {% endfor %}
+      {% endwith %}
     </main>
   </div>
 

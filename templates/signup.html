@@ -17,7 +17,7 @@
   <label for="username">아이디</label>
   <div class="box">
     <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    <input id="username" name="username" type="text" autocomplete="username" placeholder="사용할 아이디" required>
+    <input id="username" name="username" type="text" value="{{ username or '' }}" autocomplete="username" placeholder="사용할 아이디" required>
   </div>
 
   <label for="password">비밀번호</label>

@@ -1,0 +1,19 @@
+{% extends "base_auth.html" %}
+{% block title %}대시보드{% endblock %}
+
+{% block art %}
+<div class="sensor">
+  <span class="label">옷장 습도</span>
+  <strong>--%</strong>
+  <div class="bars"><i style="--h:20%"></i><i style="--h:20%"></i><i style="--h:20%"></i><i style="--h:20%"></i></div>
+</div>
+{% endblock %}
+
+{% block form %}
+<h1>{{ username }}님, 반가워요!</h1>
+<p class="sub">로그인됐어요. 대시보드는 준비 중이에요.</p>
+
+<form method="post" action="{{ url_for('logout') }}">
+  <button type="submit" class="submit">로그아웃</button>
+</form>
+{% endblock %}

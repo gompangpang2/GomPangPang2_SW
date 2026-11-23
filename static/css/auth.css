@@ -204,6 +204,20 @@ form > label:not(.remember) { font-size: 14px; font-weight: 700; margin: 0 0 7px
 .submit:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--outline); }
 .submit:focus-visible { outline: 3px solid var(--lilac); outline-offset: 3px; }
 
+/* 서버 메시지: 제목 아래, 폼 위에 보이게 순서 조정 */
+.panel > h1, .panel > .sub { order: -2; }
+.flash {
+  order: -1;
+  margin: 0 0 18px;
+  padding: 10px 14px;
+  font-size: 13px; font-weight: 600;
+  border: 2px solid var(--outline);
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--outline);
+}
+.flash.error { background: #ffe4ec; color: #9d1746; }
+.flash.ok { background: #e9ffef; color: #17633a; }
+
 .switch { margin: 22px 0 0; text-align: center; font-size: 13px; color: var(--muted); }
 .switch a { color: var(--violet-deep); font-weight: 700; text-underline-offset: 3px; }
 
