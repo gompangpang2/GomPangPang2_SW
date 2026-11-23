@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 260">
+  <defs>
+    <!-- 보송보송한 털 테두리 -->
+    <filter id="fuzz" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4"/>
+    </filter>
+    <!-- 곰팡이 번짐 -->
+    <filter id="smudge" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" seed="8" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="18" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="3"/>
+    </filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="1.2"/></filter>
+    <!-- 종이 질감 -->
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="2"/>
+      <feColorMatrix values="0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .5  0 0 0 .18 0"/>
+    </filter>
+    <radialGradient id="body" cx="45%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#fffdfb"/>
+      <stop offset=".6" stop-color="#f7eef0"/>
+      <stop offset="1" stop-color="#e8d9e3"/>
+    </radialGradient>
+    <radialGradient id="eye" cx="40%" cy="35%" r="70%">
+      <stop offset="0" stop-color="#5a3b52"/>
+      <stop offset="1" stop-color="#1f141d"/>
+    </radialGradient>
+    <clipPath id="bodyClip">
+      <path id="shape" d="M50 186 C22 182 16 150 34 136 C18 114 34 82 62 86 C64 54 100 40 122 58
+        C138 34 178 36 190 60 C216 46 252 66 246 98 C272 108 274 148 250 160
+        C260 186 236 210 208 200 C194 218 164 218 152 204 C136 218 104 216 94 200
+        C74 210 48 204 50 186 Z"/>
+    </clipPath>
+  </defs>
+
+  <!-- 바닥 그림자 -->
+  <ellipse cx="150" cy="220" rx="110" ry="12" fill="#b9a3f5" opacity=".6"/>
+
+  <!-- 몸통 -->
+  <g filter="url(#fuzz)">
+    <use href="#shape" fill="url(#body)" stroke="#7b5a52" stroke-width="5" stroke-linejoin="round"/>
+  </g>
+
+  <g clip-path="url(#bodyClip)">
+    <!-- 곰팡이 얼룩 -->
+    <g filter="url(#smudge)">
+      <ellipse cx="170" cy="70" rx="62" ry="30" fill="#5d4a7a" opacity=".75"/>
+      <ellipse cx="200" cy="64" rx="30" ry="18" fill="#3e3352" opacity=".7"/>
+      <ellipse cx="112" cy="70" rx="26" ry="16" fill="#7d6a9c" opacity=".55"/>
+      <ellipse cx="232" cy="120" rx="18" ry="14" fill="#5e5868" opacity=".5"/>
+    </g>
+    <!-- 점박이 -->
+    <g filter="url(#soft)" fill="#4f4a58">
+      <circle cx="66" cy="120" r="9" opacity=".55"/>
+      <circle cx="80" cy="104" r="5" opacity=".5"/>
+      <circle cx="54" cy="150" r="4" opacity=".45"/>
+      <circle cx="74" cy="170" r="6" opacity=".4"/>
+      <circle cx="232" cy="150" r="11" opacity=".55"/>
+      <circle cx="244" cy="128" r="4" opacity=".45"/>
+      <circle cx="222" cy="178" r="5" opacity=".45"/>
+      <circle cx="140" cy="96" r="4" opacity=".4"/>
+      <circle cx="96" cy="88" r="3" opacity=".4"/>
+      <circle cx="214" cy="96" r="6" opacity=".5"/>
+      <circle cx="186" cy="104" r="3" opacity=".4"/>
+      <circle cx="250" cy="102" r="3" opacity=".4"/>
+      <circle cx="108" cy="190" r="3" opacity=".35"/>
+      <circle cx="196" cy="196" r="4" opacity=".35"/>
+    </g>
+    <!-- 질감 -->
+    <rect width="300" height="260" filter="url(#grain)"/>
+  </g>
+
+  <!-- 얼굴 -->
+  <ellipse cx="120" cy="140" rx="12" ry="14" fill="url(#eye)"/>
+  <ellipse cx="180" cy="140" rx="12" ry="14" fill="url(#eye)"/>
+  <circle cx="124" cy="134" r="5" fill="#fff"/>
+  <circle cx="184" cy="134" r="5" fill="#fff"/>
+  <circle cx="116" cy="147" r="2" fill="#fff" opacity=".8"/>
+  <circle cx="176" cy="147" r="2" fill="#fff" opacity=".8"/>
+
+  <ellipse cx="96" cy="160" rx="14" ry="8" fill="#f7a1bd" opacity=".65" filter="url(#soft)"/>
+  <ellipse cx="204" cy="160" rx="14" ry="8" fill="#f7a1bd" opacity=".65" filter="url(#soft)"/>
+  <path d="M90 160 l3 -5 M97 161 l3 -5 M197 161 l3 -5 M204 160 l3 -5" stroke="#e07a9c" stroke-width="1.6" stroke-linecap="round"/>
+
+  <path d="M136 156 Q150 176 164 156 Z" fill="#6b2335" stroke="#4a1a26" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M142 165 Q150 160 158 165 Q150 172 142 165 Z" fill="#f08aa6"/>
+
+  <!-- 앞발 -->
+  <g filter="url(#fuzz)" fill="#fbf4f3" stroke="#7b5a52" stroke-width="4">
+    <path d="M92 214 C80 214 78 196 92 192 C100 182 116 186 118 196 C128 200 124 216 112 214 Z"/>
+    <path d="M188 214 C176 214 174 198 186 194 C192 184 210 186 212 196 C222 200 218 216 206 214 Z"/>
+  </g>
+  <path d="M100 206 v6 M108 205 v7 M196 206 v6 M204 205 v7" stroke="#b69a92" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 반짝이 -->
+  <g fill="#ffd66b">
+    <path d="M262 36 l4 12 12 4 -12 4 -4 12 -4 -12 -12 -4 12 -4z"/>
+    <path d="M282 72 l2.5 7 7 2.5 -7 2.5 -2.5 7 -2.5 -7 -7 -2.5 7 -2.5z"/>
+  </g>
+  <g stroke="#ffd66b" stroke-width="5" stroke-linecap="round">
+    <path d="M30 40 l10 12 M50 28 l4 16 M14 62 l16 6"/>
+  </g>
+</svg>
