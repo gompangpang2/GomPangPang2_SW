@@ -126,7 +126,8 @@
       label: s.node, data: s.hum,
       borderColor: pick(s.node), backgroundColor: pick(s.node),
       borderWidth: 2, tension: 0.3, spanGaps: false,
-      pointRadius: 0, pointHoverRadius: 5, pointHoverBorderWidth: 2, pointHoverBorderColor: '#fff',
+      pointRadius: c => { const d = c.dataset.data, i = c.dataIndex; return d[i] != null && d[i - 1] == null && d[i + 1] == null ? 3 : 0; },
+      pointHoverRadius: 5, pointHoverBorderWidth: 2, pointHoverBorderColor: '#fff',
     }));
     const labels = data.times.map(fmt);
 
@@ -179,7 +180,7 @@
     loadChart();
   }));
   loadChart();
-  setInterval(loadChart, 60000);
+  setInterval(loadChart, 15000);
 </script>
 <script>
   const box = document.getElementById('nodes');
@@ -211,7 +212,7 @@
           <div><span>온도</span><strong>${n.temp.toFixed(1)}°C</strong></div>
           <div><span>습도</span><strong>${n.hum.toFixed(0)}%</strong></div>
         </div>
-        <time>${esc(n.at)} 기준</time>
+        <time>${new Date(n.ts * 1000).toLocaleString('ko-KR')} 기준</time>
       </article>`).join('');
     artLabel.textContent = `${data[0].node} 습도`;
     artHum.textContent = `${data[0].hum.toFixed(0)}%`;

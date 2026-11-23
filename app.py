@@ -105,7 +105,7 @@ def api_latest():
         return jsonify(error="DB에 연결할 수 없어요."), 503
     return jsonify([
         {"node": r["node"], "temp": r["temperature"], "hum": r["humidity"],
-         "at": r["measured_at"].strftime("%Y-%m-%d %H:%M:%S")}
+         "ts": int(r["ts"])}
         for r in rows
     ])
 

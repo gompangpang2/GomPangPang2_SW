@@ -49,7 +49,7 @@ def latest_measurements():
     with connect() as conn, conn.cursor() as cur:
         cur.execute(
             """
-            SELECT m.node, m.temperature, m.humidity, m.measured_at
+            SELECT m.node, m.temperature, m.humidity, UNIX_TIMESTAMP(m.measured_at) AS ts
             FROM measurements m
             JOIN (SELECT node, MAX(id) AS id FROM measurements GROUP BY node) last ON last.id = m.id
             ORDER BY m.node

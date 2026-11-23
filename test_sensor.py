@@ -3,7 +3,6 @@
 """
 import socket
 import threading
-from datetime import datetime
 
 import app as appmod
 import tcp_server
@@ -12,7 +11,7 @@ rows = []
 
 
 def fake_save(node, temperature, humidity):
-    rows.append({"node": node, "temperature": temperature, "humidity": humidity, "measured_at": datetime(2026, 11, 23, 12, 0, 0)})
+    rows.append({"node": node, "temperature": temperature, "humidity": humidity, "ts": 1_800_000_000})
 
 
 def fake_latest():
@@ -56,8 +55,8 @@ with c.session_transaction() as sess:
     sess["user_id"], sess["username"] = 1, "mold"
 data = c.get("/api/latest").get_json()
 assert data == [
-    {"node": "closet1", "temp": 25.0, "hum": 63.0, "at": "2026-11-23 12:00:00"},
-    {"node": "shoe", "temp": 20.0, "hum": 70.0, "at": "2026-11-23 12:00:00"},
+    {"node": "closet1", "temp": 25.0, "hum": 63.0, "ts": 1_800_000_000},
+    {"node": "shoe", "temp": 20.0, "hum": 70.0, "ts": 1_800_000_000},
 ], data
 
 # 습도 기록: 1시간 = 60초 구간 60개, 빈 구간은 null, 범위 밖 구간은 버림
