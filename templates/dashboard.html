@@ -5,12 +5,29 @@
 
 {% block content %}
 <section class="hero-status" id="status" data-level="none" aria-labelledby="status-title">
-  <p class="hello">{{ username }}님, 반가워요!</p>
-  <p class="badge" id="status-badge" hidden></p>
-  <h1 id="status-title">센서 확인 중…</h1>
-  <p class="status-desc" id="status-desc">잠시만 기다려 주세요.</p>
-  <p class="live" id="live" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="live-text">불러오는 중</span></p>
+  <div class="hero-copy">
+    <p class="hello">{{ username }}님, 반가워요!</p>
+    <p class="badge" id="status-badge" hidden></p>
+    <h1 id="status-title">센서 확인 중…</h1>
+    <p class="status-desc" id="status-desc">잠시만 기다려 주세요.</p>
+  </div>
+
+  <figure class="window" id="window" data-sky="clear" data-day="1">
+    <div class="frame" aria-hidden="true">
+      <span class="rail"></span>
+      <div class="pane">
+        <span class="stars"></span><span class="sun"></span><span class="moon"></span>
+        <span class="cloud c1"></span><span class="cloud c2"></span>
+        <span class="precip"></span><span class="fog"></span><span class="flash"></span>
+      </div>
+      <span class="curtain l"></span><span class="curtain r"></span>
+    </div>
+    <figcaption id="weather-cap">바깥 날씨 불러오는 중…</figcaption>
+  </figure>
+
+  <div class="floor" aria-hidden="true"></div>
   <img class="hero-mascot" src="{{ url_for('static', filename='img/character.svg') }}" alt="">
+  <p class="live" id="live" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="live-text">불러오는 중</span></p>
 </section>
 
 <section class="node-area" aria-labelledby="nodes-title">
@@ -62,6 +79,8 @@
     $('status-title').textContent = LEVEL[lv].title;
     $('status-desc').textContent = LEVEL[lv].desc(top.node, h);
     lastTs = Math.max(...data.map(n => n.ts));
+    insideMax = top.hum;
+    advise();
     tick();
   }
 
@@ -113,8 +132,61 @@
     renderNodes(data);
   }
 
+  // ── 바깥 날씨 (Open-Meteo, 키 필요 없음) → 창밖 장면 ──
+  const PLACE = { name: '부산', lat: 35.18, lon: 129.08 };  // 위치 바꾸려면 여기만
+  const SKY = [  // WMO 날씨 코드 → 장면
+    [[0], 'clear', '맑음'], [[1, 2], 'partly', '구름 조금'], [[3], 'cloudy', '흐림'], [[45, 48], 'fog', '안개'],
+    [[51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82], 'rain', '비'],
+    [[71, 73, 75, 77, 85, 86], 'snow', '눈'], [[95, 96, 99], 'thunder', '천둥번개'],
+  ];
+  const SKY_LABEL = Object.fromEntries(SKY.map(([, k, l]) => [k, l]));
+  let outside = null;  // 바깥 습도: 환기 조언에 사용
+
+  function setSky(sky, day) {
+    const w = $('window');
+    w.dataset.sky = sky;
+    w.dataset.day = day ? '1' : '0';
+  }
+
+  async function loadWeather() {
+    const forced = new URLSearchParams(location.search).get('sky');  // 시연용: ?sky=rain
+    if (forced && SKY_LABEL[forced]) {
+      const day = new URLSearchParams(location.search).get('day') !== '0';
+      setSky(forced, day);
+      $('weather-cap').innerHTML = `${PLACE.name} · ${SKY_LABEL[forced]}<small>시연 모드</small>`;
+      return;
+    }
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${PLACE.lat}&longitude=${PLACE.lon}` +
+        '&current=temperature_2m,relative_humidity_2m,weather_code,is_day&timezone=auto';
+      const c = (await (await fetch(url)).json()).current;
+      const sky = (SKY.find(([codes]) => codes.includes(c.weather_code)) || [, 'cloudy'])[1];
+      setSky(sky, c.is_day === 1);
+      outside = { hum: c.relative_humidity_2m, wet: ['rain', 'snow', 'thunder', 'fog'].includes(sky) };
+      $('weather-cap').textContent = `${PLACE.name} · ${SKY_LABEL[sky]} ${Math.round(c.temperature_2m)}°C · 습도 ${c.relative_humidity_2m}%`;
+      advise();
+    } catch {
+      const h = new Date().getHours();
+      setSky('clear', h >= 6 && h < 18);
+      $('weather-cap').textContent = '바깥 날씨를 불러오지 못했어요';
+    }
+  }
+
+  // 환기 조언: 바깥이 더 건조하고 비·눈이 아니면 창문 열기 추천
+  let insideMax = null;
+  function advise() {
+    if (!outside || insideMax == null) return;
+    const cap = $('weather-cap');
+    cap.querySelector('small')?.remove();
+    const tip = document.createElement('small');
+    tip.textContent = !outside.wet && outside.hum < insideMax ? '바깥이 더 건조해요. 창문을 열어 환기하기 좋아요.' : '지금은 창문을 닫고 제습하는 게 좋아요.';
+    cap.appendChild(tip);
+  }
+
   refresh();
+  loadWeather();
   setInterval(refresh, 5000);
   setInterval(tick, 1000);
+  setInterval(loadWeather, 10 * 60 * 1000);
 </script>
 {% endblock %}
