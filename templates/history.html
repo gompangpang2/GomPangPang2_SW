@@ -36,7 +36,19 @@
   const INK = '#2a1d47', MUTED = '#8b82a3', GRID = '#eee8f7', MOLD_LINE = 70;
   const colorOf = {};  // 노드 → 색. 처음 본 순서로 고정해서 기간을 바꿔도 색이 안 바뀜
   const pick = node => colorOf[node] ??= SERIES[Object.keys(colorOf).length] || '#9a93ad';
-  let range = '24h', chart;
+  let range = '24h', chart, times = [];
+  // 칸(세로선) 간격(분): 24시간은 30분. 시간 글자는 겹치지 않게 2배씩 늘려서 표시
+  const TICK_MIN = { '1h': 10, '24h': 30, '7d': 720 };
+  const onStep = (t, step) => (Math.round(t / 60) - new Date(t * 1000).getTimezoneOffset()) % step === 0;
+  function tickLabel(scale, i) {
+    const t = times[i];
+    if (t == null) return null;
+    const bucketMin = (times[1] - times[0]) / 60 || 1;
+    const pxPerMin = scale.width / (times.length * bucketMin);
+    let step = TICK_MIN[range];
+    while (step * pxPerMin < 44) step *= 2;
+    return onStep(t, step) ? fmt(t) : null;
+  }
 
   const fmt = (t) => {
     const d = new Date(t * 1000), p = n => String(n).padStart(2, '0');
@@ -47,8 +59,15 @@
   const overlay = {
     id: 'overlay',
     beforeDatasetsDraw(c) {
-      const { ctx, chartArea: a, scales: { y } } = c, yy = y.getPixelForValue(MOLD_LINE);
+      const { ctx, chartArea: a, scales: { x, y } } = c, yy = y.getPixelForValue(MOLD_LINE);
       ctx.save();
+      // 칸: TICK_MIN 간격(24시간이면 30분)마다 옅은 세로선
+      ctx.strokeStyle = '#efe9fa'; ctx.lineWidth = 1;
+      times.forEach((t, i) => {
+        if (!onStep(t, TICK_MIN[range])) return;
+        const px = Math.round(x.getPixelForValue(i)) + 0.5;
+        ctx.beginPath(); ctx.moveTo(px, a.top); ctx.lineTo(px, a.bottom); ctx.stroke();
+      });
       ctx.strokeStyle = '#c9b9ef'; ctx.setLineDash([5, 5]); ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(a.left, yy); ctx.lineTo(a.right, yy); ctx.stroke();
       ctx.setLineDash([]); ctx.fillStyle = MUTED; ctx.font = '600 11px Pretendard Variable, sans-serif';
@@ -109,6 +128,7 @@
       pointRadius: c => { const d = c.dataset.data, i = c.dataIndex; return d[i] != null && d[i - 1] == null && d[i + 1] == null ? 3 : 0; },
       pointHoverRadius: 5, pointHoverBorderWidth: 2, pointHoverBorderColor: '#fff',
     }));
+    times = data.times;
     const labels = data.times.map(fmt);
 
     if (chart) {
@@ -133,7 +153,10 @@
             grid: { color: GRID }, border: { display: false },
           },
           x: {
-            ticks: { color: MUTED, maxTicksLimit: 7, maxRotation: 0 },
+            ticks: {
+              color: MUTED, maxRotation: 0, autoSkip: false,
+              callback(v, i) { return tickLabel(this, i); },
+            },
             grid: { display: false }, border: { color: GRID },
           },
         },
