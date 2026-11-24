@@ -75,6 +75,14 @@ assert s1["node"] == "closet1" and s1["hum"][-1] == 62.0 and s1["hum"][-2] is No
 assert s2["node"] == "shoe" and s2["hum"][0] == 71 and 99 not in s2["hum"]
 assert len(c.get("/api/history?range=bogus").get_json()["times"]) == 96  # 기본 24시간 / 15분
 
+# 페이지: 현재 상태와 습도 기록이 각각 따로, 메뉴에 현재 위치 표시
+page = c.get("/dashboard").get_data(as_text=True)
+assert 'id="nodes"' in page and "hum-chart" not in page
+hist = c.get("/history").get_data(as_text=True)
+assert "hum-chart" in hist and 'href="/history" aria-current="page"' in " ".join(hist.split())
+c2 = appmod.app.test_client()
+assert c2.get("/history").headers["Location"].endswith("/login")  # 로그인 필요
+
 # DB 장애면 503
 def boom():
     raise RuntimeError("db down")

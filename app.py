@@ -95,6 +95,12 @@ def dashboard():
     return render_template("dashboard.html", username=session["username"])
 
 
+@app.route("/history")
+@login_required
+def history():
+    return render_template("history.html")
+
+
 @app.route("/api/latest")
 @login_required
 def api_latest():

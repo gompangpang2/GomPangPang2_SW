@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} · 곰팡이 방지 시스템</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="app">
+  <header class="topbar">
+    <a class="logo" href="{{ url_for('dashboard') }}">곰팡팡이.</a>
+    <nav class="tabs" aria-label="메뉴">
+      <a href="{{ url_for('dashboard') }}" {% if active == 'dashboard' %}aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/></svg>
+        현재 상태
+      </a>
+      <a href="{{ url_for('history') }}" {% if active == 'history' %}aria-current="page"{% endif %}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-5 3 3 5-6"/></svg>
+        습도 기록
+      </a>
+    </nav>
+    <div class="me">
+      <span class="who">{{ session.username }}님</span>
+      <form method="post" action="{{ url_for('logout') }}">
+        <button type="submit" class="logout">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
+          로그아웃
+        </button>
+      </form>
+    </div>
+  </header>
+
+  <main class="page {% block page_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script>
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    // API 공통: 로그인이 풀리면 로그인 화면으로
+    async function getJSON(url) {
+      const res = await fetch(url, { headers: { Accept: 'application/json' } });
+      if (res.redirected) { location.href = res.url; return null; }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '불러오지 못했어요.');
+      return data;
+    }
+  </script>
+  {% block script %}{% endblock %}
+</body>
+</html>

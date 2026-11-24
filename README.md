@@ -26,7 +26,29 @@ sudo mysql < schema.sql
 sudo mysql -e "CREATE USER IF NOT EXISTS 'gompang'@'localhost' IDENTIFIED BY '비밀번호'; GRANT ALL ON gompang.* TO 'gompang'@'localhost';"
 ```
 
-### 3. 서버 실행
+### 3. 서버 한 번에 켜기 (추천)
+
+```bash
+./start.sh
+```
+
+이 명령 하나로 DB 컨테이너(`my-db-server`), 웹 서버(5001번), DHT 센서 노드가 모두 켜집니다. tmux 안에서 실행되므로 SSH가 끊겨도 계속 동작합니다.
+
+- 화면 보기: `tmux attach -t gompang` (빠져나오기: `Ctrl+B`를 누른 뒤 `D`)
+- 끄기: `./start.sh stop`
+- 센서 없이 웹만 켜기: `NODE=0 ./start.sh`
+- 처음 한 번 설치: `sudo apt install -y tmux`
+
+DB 비밀번호는 실행할 때 물어봅니다. 매번 입력하기 번거로우면 프로젝트 폴더에 `.env` 파일을 만들어 두면 됩니다. 이 파일은 `.gitignore`에 들어 있어 GitHub에 올라가지 않습니다.
+
+```
+DB_PASSWORD=실제비밀번호
+SECRET_KEY=아무_긴_문자열
+```
+
+`.env`에는 `DB_USER`, `DB_NAME`, `PORT`, `DB_CONTAINER`, `VENV`, `NODE_NAME`도 넣을 수 있습니다. 기본값은 각각 `root`, `gompang`, `5001`, `my-db-server`, `../.venv`, `closet1`입니다.
+
+### 3-1. 직접 실행하기
 
 ```bash
 export DB_PASSWORD='비밀번호'
